@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notulen Rapat Online - Desa PWO 2</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            800: '#1e3a8a',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+        }
+        .print-only {
+            display: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800 bg-slate-100 antialiased">
+
+    <!-- OVERLAY LOGIN PIN -->
+    <div id="authOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200">
+            <!-- Header Auth -->
+            <div class="bg-gradient-to-r from-slate-900 via-emerald-900 to-teal-900 p-6 text-white text-center">
+                <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm border border-white/20 shadow-inner">
+                    <i data-lucide="lock" class="w-7 h-7 text-emerald-300"></i>
+                </div>
+                <h2 class="text-xl font-bold tracking-tight">PEMERINTAH DESA PWO 2</h2>
+                <p class="text-xs text-emerald-200 font-medium tracking-wide uppercase mt-1">Notulen Rapat Online (Database Cloud)</p>
+            </div>
+
+            <!-- Body Auth -->
+            <div class="p-6 space-y-5">
+                <div class="text-center text-xs text-slate-600">
+                    Masukkan Kode Akses PIN untuk membuka berkas notulen rapat desa.
+                </div>
+
+                <!-- Toggle Role Switch -->
+                <div class="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-xl text-xs font-semibold">
+                    <button id="tabRoleVisitor" type="button" onclick="switchAuthTab('visitor')" class="py-2.5 rounded-lg transition-all bg-white shadow-sm text-emerald-800">
+                        <i data-lucide="eye" class="w-3.5 h-3.5 inline mr-1"></i> Pengunjung
+                    </button>
+                    <button id="tabRoleAdmin" type="button" onclick="switchAuthTab('admin')" class="py-2.5 rounded-lg text-slate-500 hover:text-slate-800 transition-all">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5 inline mr-1"></i> Administrator
+                    </button>
+                </div>
+
+                <!-- Form Login -->
+                <form id="formAuth" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label id="pinLabel" class="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                            Kode Akses Pengunjung
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="inputPin" maxlength="8" required placeholder="Masukkan PIN..." 
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center text-xl font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:bg-white transition-all">
+                            <button type="button" onclick="togglePinVisibility()" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
+                                <i data-lucide="eye" id="iconTogglePin" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <p id="pinHint" class="text-[11px] text-slate-400 mt-2 text-center">
+                            Default PIN Pengunjung: <span class="font-mono font-bold text-slate-700">1234</span>
+                        </p>
+                    </div>
+
+                    <div id="authErrorMessage" class="hidden text-red-600 text-xs text-center bg-red-50 p-2.5 rounded-lg border border-red-200 font-semibold">
+                        Kode PIN salah! Silakan periksa kembali.
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-emerald-800 hover:bg-emerald-900 text-white font-semibold rounded-xl shadow-lg shadow-emerald-900/20 text-xs tracking-wider transition-all flex items-center justify-center gap-2">
+                        <span>MASUK KE SISTEM</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </form>
+            </div>
+            
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-100 text-center text-[10px] text-slate-400">
+                Database Cloud Terintegrasi - Pemdes Desa PWO 2
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER NAVBAR -->
+    <header class="no-print bg-slate-900 text-white shadow-xl sticky top-0 z-30 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 bg-emerald-800/80 rounded-xl flex items-center justify-center border border-emerald-600/40 shadow-inner">
+                        <i data-lucide="database" class="w-6 h-6 text-emerald-300"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold tracking-tight text-white leading-tight">PEMERINTAH DESA PWO 2</h1>
+                        <p class="text-xs text-emerald-300 font-medium tracking-wide flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Database Notulen Online Realtime
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div id="userRoleBadge" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border backdrop-blur-sm">
+                        <!-- Role Info via JS -->
+                    </div>
+
+                    <button id="btnChangePin" onclick="openChangePinModal()" class="hidden text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg transition-all border border-slate-700 flex items-center gap-1.5">
+                        <i data-lucide="key" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span>Pengaturan PIN</span>
+                    </button>
+
+                    <button onclick="handleLogout()" class="bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/30 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                        <span class="hidden md:inline">Keluar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+        <!-- DASHBOARD STATS -->
+        <div class="no-print grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-800 rounded-xl flex items-center justify-center shrink-0 border border-emerald-100">
+                    <i data-lucide="folder-open" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Pertemuan Rapat</p>
+                    <h3 id="statTotalNotulen" class="text-2xl font-bold text-slate-800">0</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 bg-blue-50 text-blue-800 rounded-xl flex items-center justify-center shrink-0 border border-blue-100">
+                    <i data-lucide="list-checks" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Poin Usulan</p>
+                    <h3 id="statTotalUsulan" class="text-2xl font-bold text-slate-800">0</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 bg-teal-50 text-teal-800 rounded-xl flex items-center justify-center shrink-0 border border-teal-100">
+                    <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Status Disetujui</p>
+                    <h3 id="statDisetujui" class="text-2xl font-bold text-slate-800">0</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 bg-slate-100 text-slate-700 rounded-xl flex items-center justify-center shrink-0 border border-slate-200">
+                    <i data-lucide="cloud" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Status Koneksi Cloud</p>
+                    <h3 id="statCloudStatus" class="text-xs font-bold text-emerald-600 mt-1 flex items-center gap-1">
+                        <i data-lucide="wifi" class="w-3.5 h-3.5"></i> <span id="cloudStatusText">Terhubung</span>
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEARCH AND ACTION TOOLBAR -->
+        <div class="no-print bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+            <div class="relative flex-grow max-w-lg">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400"></i>
+                <input type="text" id="searchInput" oninput="renderMeetings()" placeholder="Cari nama rapat, usulan, pembahasan, lokasi..." 
+                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:bg-white transition-all">
+            </div>
+
+            <div class="flex items-center gap-3 flex-wrap">
+                <select id="filterStatus" onchange="renderMeetings()" class="px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-700">
+                    <option value="ALL">Semua Keterangan Status</option>
+                    <option value="Disetujui">Disetujui</option>
+                    <option value="Dalam Proses">Dalam Proses</option>
+                    <option value="Ditindaklanjuti">Ditindaklanjuti</option>
+                    <option value="Selesai">Selesai</option>
+                </select>
+
+                <button id="btnTambahNotulen" onclick="openNotulenModal()" class="hidden bg-emerald-800 hover:bg-emerald-900 text-white font-semibold px-4 py-2.5 rounded-xl shadow-md text-xs transition-all flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Tambah Notulen Rapat</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- DAFTAR RAPAT DENGAN TABEL HORIZONTAL -->
+        <div id="meetingsContainer" class="space-y-6">
+            <!-- Dynamic Content populated via JS -->
+        </div>
+
+        <!-- LOADING STATE -->
+        <div id="loadingState" class="bg-white rounded-2xl p-12 text-center border border-slate-200">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-800 border-t-transparent mb-3"></div>
+            <p class="text-xs font-semibold text-slate-600">Mengambil data dari Database Cloud...</p>
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div id="emptyState" class="hidden bg-white rounded-2xl p-12 text-center border border-slate-200">
+            <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="folder-search" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-sm font-bold text-slate-800 mb-1">Data Notulen Tidak Ditemukan</h3>
+            <p class="text-xs text-slate-500">Tidak ada arsip notulen rapat di database online yang sesuai dengan pencarian.</p>
+        </div>
+
+    </main>
+
+    <!-- MODAL FORM NOTULEN RAPAT (KHUSUS ADMIN) -->
+    <div id="notulenModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden my-auto border border-slate-200">
+            <!-- Modal Header -->
+            <div class="bg-slate-900 text-white p-5 flex items-center justify-between shrink-0 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <i data-lucide="file-signature" class="w-5 h-5 text-emerald-400"></i>
+                    <h3 id="modalFormTitle" class="font-bold text-base">Formulir Notulen Rapat Desa</h3>
+                </div>
+                <button onclick="closeNotulenModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form Content -->
+            <form id="formNotulen" onsubmit="saveNotulen(event)" class="p-6 overflow-y-auto space-y-6 flex-grow">
+                <input type="hidden" id="notulenId">
+
+                <!-- Info Pertemuan Rapat -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="sm:col-span-2">
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Nama / Agenda Pertemuan Rapat *</label>
+                        <input type="text" id="inputJudul" required placeholder="Contoh: Rapat Musyawarah Desa Triwulan I" class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Tanggal & Waktu Pertemuan *</label>
+                        <input type="datetime-local" id="inputTanggal" required class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Tempat / Lokasi *</label>
+                        <input type="text" id="inputLokasi" required placeholder="Contoh: Ruang Rapat Balai Desa PWO 2" class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Pemimpin Rapat *</label>
+                        <input type="text" id="inputPimpinan" required placeholder="Nama & Jabatan Pimpinan Rapat" class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Notulis / Pencatatan *</label>
+                        <input type="text" id="inputNotulis" required placeholder="Nama Notulis Rapat" class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-700 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Input Poin-poin Tabel Horizontal -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Poin Musyawarah Rapat</h4>
+                            <p class="text-[11px] text-slate-500">Tambahkan baris usulan, pembahasan, dan keterangan untuk tabel horizontal.</p>
+                        </div>
+                        <button type="button" onclick="addTableRow()" class="text-xs bg-emerald-800 hover:bg-emerald-900 text-white font-semibold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Baris
+                        </button>
+                    </div>
+
+                    <div class="space-y-3" id="rowsContainer">
+                        <!-- Dynamic items -->
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                    <button type="button" onclick="closeNotulenModal()" class="px-4 py-2 border border-slate-200 text-slate-600 font-semibold rounded-xl text-xs hover:bg-slate-50">
+                        Batal
+                    </button>
+                    <button type="submit" id="btnSubmitForm" class="px-5 py-2 bg-emerald-800 hover:bg-emerald-900 text-white font-semibold rounded-xl text-xs shadow-md">
+                        Simpan ke Database Cloud
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CETAK NOTULEN RESMI -->
+    <div id="printModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden my-auto border border-slate-200">
+            <div class="no-print bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
+                <span class="text-xs font-semibold flex items-center gap-2">
+                    <i data-lucide="printer" class="w-4 h-4 text-emerald-400"></i> Cetak / Ekspor PDF Dokumentasi Notulen
+                </span>
+                <div class="flex items-center gap-2">
+                    <button onclick="triggerPrint()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak / Simpan PDF
+                    </button>
+                    <button onclick="closePrintModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Area Cetak PDF / Kop Surat -->
+            <div id="printArea" class="p-8 sm:p-12 overflow-y-auto font-serif text-slate-900 bg-white">
+                <!-- Kop Surat Resmi -->
+                <div class="text-center border-b-4 border-double border-slate-900 pb-4 mb-6">
+                    <h3 class="text-sm font-bold uppercase tracking-widest text-slate-800">PEMERINTAH KABUPATEN DESA PWO 2</h3>
+                    <h2 class="text-xl font-extrabold uppercase tracking-wider text-slate-900 mt-0.5">SEKRETARIAT DESA PWO 2</h2>
+                    <p class="text-xs font-sans text-slate-600 italic mt-1">Alamat: Jl. Raya Utama Desa PWO 2 No. 01 | Email: sekretariat@desapwo2.go.id</p>
+                </div>
+
+                <div class="text-center my-6">
+                    <h2 class="text-base font-bold uppercase underline tracking-wide" id="printJudul">NOTULEN HASIL RAPAT</h2>
+                    <p class="text-xs font-sans text-slate-600 mt-1" id="printTanggalLokasi"></p>
+                </div>
+
+                <table class="w-full text-xs font-sans mb-6 border-collapse">
+                    <tbody>
+                        <tr>
+                            <td class="py-1 font-semibold w-28">Pemimpin Rapat</td>
+                            <td class="py-1 w-4">:</td>
+                            <td class="py-1" id="printPimpinan"></td>
+                            <td class="py-1 font-semibold w-20">Notulis</td>
+                            <td class="py-1 w-4">:</td>
+                            <td class="py-1" id="printNotulis"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Tabel Horizontal Hasil Cetak -->
+                <table class="w-full border-collapse border border-slate-900 text-xs font-sans mb-8">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-900">
+                            <th class="border border-slate-900 px-2 py-2 text-center w-10">NO</th>
+                            <th class="border border-slate-900 px-3 py-2 text-left w-1/3">USULAN</th>
+                            <th class="border border-slate-900 px-3 py-2 text-left w-1/3">PEMBAHASAN</th>
+                            <th class="border border-slate-900 px-3 py-2 text-left">KETERANGAN</th>
+                        </tr>
+                    </thead>
+                    <tbody id="printTableBody">
+                        <!-- Dynamic Print Rows -->
+                    </tbody>
+                </table>
+
+                <!-- Tanda Tangan -->
+                <div class="mt-12 grid grid-cols-2 gap-8 text-center text-xs font-sans">
+                    <div>
+                        <p class="mb-16">Mengetahui,<br><span class="font-bold">Pemimpin Rapat</span></p>
+                        <p class="font-bold underline" id="printTTDPimpinan">( .................................... )</p>
+                    </div>
+                    <div>
+                        <p class="mb-16">Desa PWO 2, <span id="printTTDTanggal"></span><br><span class="font-bold">Notulis Rapat</span></p>
+                        <p class="font-bold underline" id="printTTDNotulis">( .................................... )</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PENGATURAN PIN -->
+    <div id="changePinModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 space-y-4 border border-slate-200">
+            <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                <i data-lucide="key" class="w-4 h-4 text-emerald-700"></i> Pengaturan Kode Akses PIN
+            </h3>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">PIN Pengunjung Baru</label>
+                    <input type="text" id="newVisitorPin" maxlength="8" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">PIN Admin Baru</label>
+                    <input type="text" id="newAdminPin" maxlength="8" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeChangePinModal()" class="px-3 py-2 text-xs border rounded-lg font-semibold text-slate-600 hover:bg-slate-50">Batal</button>
+                <button onclick="saveNewPins()" class="px-3.5 py-2 text-xs bg-emerald-800 hover:bg-emerald-900 text-white rounded-lg font-semibold shadow-sm">Simpan PIN Baru</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDK V9 & APP LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            updateDoc, 
+            deleteDoc, 
+            doc, 
+            onSnapshot, 
+            query, 
+            orderBy 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Konfigurasi Firebase (menggunakan placeholder demo atau konfigurasi valid Anda)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDemoKeyDesaPWO2ReplaceThis",
+            authDomain: "desapwo2-notulen.firebaseapp.com",
+            projectId: "desapwo2-notulen",
+            storageBucket: "desapwo2-notulen.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abc123def456"
+        };
+
+        const LOCAL_FALLBACK_KEY = 'DESA_PWO2_LOCAL_NOTULEN_V2';
+
+        function getInitialDemoData() {
+            return [
+                {
+                    id: 'demo-1',
+                    judul: 'Rapat Musyawarah Perencanaan Pembangunan Desa PWO 2',
+                    tanggal: '2026-10-05T09:00',
+                    lokasi: 'Ruang Rapat Utama Balai Desa PWO 2',
+                    pimpinan: 'Sekretaris Desa PWO 2',
+                    notulis: 'Staf Administrasi Desa',
+                    items: [
+                        { usulan: 'Penyusunan Jadwal Kegiatan Pemeliharaan Fasilitas Umum Tahunan.', pembahasan: 'Dilakukan inventarisasi aset dan pembagian tim pengawas kebersihan serta perawatan.', keterangan: 'Disetujui' },
+                        { usulan: 'Digitalisasi Pelayanan Administrasi Surat Menyurat.', pembahasan: 'Pengadaan perangkat komputer tambahan dan pelatihan singkat penggunaan sistem persuratan online.', keterangan: 'Dalam Proses' }
+                    ]
+                }
+            ];
+        }
+
+        window.notulenData = [];
+        let isCloudConnected = false;
+
+        // Inisialisasi Lokal / Fallback Storage Terlebih Dahulu agar App Instan & Responsif
+        const localSaved = localStorage.getItem(LOCAL_FALLBACK_KEY);
+        if (localSaved) {
+            try { window.notulenData = JSON.parse(localSaved); } catch(e) {}
+        }
+        if (!window.notulenData || window.notulenData.length === 0) {
+            window.notulenData = getInitialDemoData();
+            localStorage.setItem(LOCAL_FALLBACK_KEY, JSON.stringify(window.notulenData));
+        }
+
+        // Coba hubungkan ke Firebase Firestore dengan penanganan error permission-denied / offline yang aman
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            const notulenColRef = collection(db, "notulen_rapat");
+
+            window.db = db;
+            window.notulenColRef = notulenColRef;
+
+            const q = query(notulenColRef, orderBy("tanggal", "desc"));
+            onSnapshot(q, (snapshot) => {
+                if (!snapshot.empty) {
+                    const items = [];
+                    snapshot.forEach((doc) => {
+                        items.push({ id: doc.id, ...doc.data() });
+                    });
+                    window.notulenData = items;
+                    isCloudConnected = true;
+                    document.getElementById('cloudStatusText').innerText = "Terhubung (Cloud)";
+                }
+                document.getElementById('loadingState').classList.add('hidden');
+                window.renderMeetings();
+                window.updateStats();
+            }, (error) => {
+                console.warn("Firebase restricted or offline. Operating in local storage mode:", error);
+                activateFallbackMode("Mode Lokal (Offline)");
+            });
+
+            // Cloud CRUD
+            window.firebaseAddNotulen = async function(data) {
+                try {
+                    await addDoc(notulenColRef, data);
+                } catch(e) {
+                    console.warn("Cloud save failed, saving locally:", e);
+                    window.notulenData.unshift({ id: 'local-' + Date.now(), ...data });
+                    persistLocalAndRefresh();
+                }
+            };
+
+            window.firebaseUpdateNotulen = async function(id, data) {
+                try {
+                    if (id.startsWith('demo-') || id.startsWith('local-')) {
+                        const idx = window.notulenData.findIndex(n => n.id === id);
+                        if(idx !== -1) window.notulenData[idx] = { id, ...data };
+                        persistLocalAndRefresh();
+                    } else {
+                        const docRef = doc(db, "notulen_rapat", id);
+                        await updateDoc(docRef, data);
+                    }
+                } catch(e) {
+                    console.warn("Cloud update failed:", e);
+                }
+            };
+
+            window.firebaseDeleteNotulen = async function(id) {
+                try {
+                    if (id.startsWith('demo-') || id.startsWith('local-')) {
+                        window.notulenData = window.notulenData.filter(n => n.id !== id);
+                        persistLocalAndRefresh();
+                    } else {
+                        const docRef = doc(db, "notulen_rapat", id);
+                        await deleteDoc(docRef);
+                    }
+                } catch(e) {
+                    console.warn("Cloud delete failed:", e);
+                }
+            };
+
+        } catch (err) {
+            console.warn("Firebase initialization skipped. Using local storage mode.", err);
+            activateFallbackMode("Mode Lokal Mandiri");
+        }
+
+        function activateFallbackMode(statusLabel) {
+            document.getElementById('cloudStatusText').innerText = statusLabel;
+            document.getElementById('loadingState').classList.add('hidden');
+            window.renderMeetings();
+            window.updateStats();
+
+            window.firebaseAddNotulen = async function(data) {
+                window.notulenData.unshift({ id: 'local-' + Date.now(), ...data });
+                persistLocalAndRefresh();
+            };
+
+            window.firebaseUpdateNotulen = async function(id, data) {
+                const idx = window.notulenData.findIndex(n => n.id === id);
+                if(idx !== -1) window.notulenData[idx] = { id, ...data };
+                persistLocalAndRefresh();
+            };
+
+            window.firebaseDeleteNotulen = async function(id) {
+                window.notulenData = window.notulenData.filter(n => n.id !== id);
+                persistLocalAndRefresh();
+            };
+        }
+
+        function persistLocalAndRefresh() {
+            localStorage.setItem(LOCAL_FALLBACK_KEY, JSON.stringify(window.notulenData));
+            window.renderMeetings();
+            window.updateStats();
+        }
+    </script>
+
+    <!-- UI INTERACTION SCRIPT -->
+    <script>
+        const STORAGE_KEY_AUTH = 'DESA_PWO2_AUTH_ROLE_CLOUD_V1';
+        const STORAGE_KEY_PINS = 'DESA_PWO2_PINS_CLOUD_V1';
+
+        let currentPins = { visitor: '1234', admin: '9999' };
+        let currentRole = null;
+        let selectedAuthTab = 'visitor';
+
+        window.onload = function() {
+            lucide.createIcons();
+            loadPinsFromStorage();
+            checkExistingAuth();
+        };
+
+        function loadPinsFromStorage() {
+            const saved = localStorage.getItem(STORAGE_KEY_PINS);
+            if (saved) {
+                try { currentPins = JSON.parse(saved); } catch(e) {}
+            }
+        }
+
+        function switchAuthTab(role) {
+            selectedAuthTab = role;
+            const tabVisitor = document.getElementById('tabRoleVisitor');
+            const tabAdmin = document.getElementById('tabRoleAdmin');
+            const pinLabel = document.getElementById('pinLabel');
+            const pinHint = document.getElementById('pinHint');
+            document.getElementById('authErrorMessage').classList.add('hidden');
+            document.getElementById('inputPin').value = '';
+
+            if (role === 'visitor') {
+                tabVisitor.className = "py-2.5 rounded-lg transition-all bg-white shadow-sm text-emerald-800";
+                tabAdmin.className = "py-2.5 rounded-lg text-slate-500 hover:text-slate-800 transition-all";
+                pinLabel.innerText = "Kode Akses Pengunjung";
+                pinHint.innerHTML = `Default PIN Pengunjung: <span class="font-mono font-bold text-slate-700">${currentPins.visitor}</span>`;
+            } else {
+                tabAdmin.className = "py-2.5 rounded-lg transition-all bg-white shadow-sm text-emerald-800";
+                tabVisitor.className = "py-2.5 rounded-lg text-slate-500 hover:text-slate-800 transition-all";
+                pinLabel.innerText = "Kode Akses Administrator";
+                pinHint.innerHTML = `Default PIN Admin: <span class="font-mono font-bold text-slate-700">${currentPins.admin}</span>`;
+            }
+        }
+
+        function togglePinVisibility() {
+            const input = document.getElementById('inputPin');
+            const icon = document.getElementById('iconTogglePin');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const pinInput = document.getElementById('inputPin').value;
+            const err = document.getElementById('authErrorMessage');
+
+            if (selectedAuthTab === 'visitor' && pinInput === currentPins.visitor) {
+                setAuthenticatedRole('visitor');
+            } else if (selectedAuthTab === 'admin' && pinInput === currentPins.admin) {
+                setAuthenticatedRole('admin');
+            } else {
+                err.classList.remove('hidden');
+            }
+        }
+
+        function setAuthenticatedRole(role) {
+            currentRole = role;
+            sessionStorage.setItem(STORAGE_KEY_AUTH, role);
+            document.getElementById('authOverlay').classList.add('hidden');
+            updateUIByRole();
+            renderMeetings();
+            updateStats();
+        }
+
+        function checkExistingAuth() {
+            const savedRole = sessionStorage.getItem(STORAGE_KEY_AUTH);
+            if (savedRole && (savedRole === 'visitor' || savedRole === 'admin')) {
+                currentRole = savedRole;
+                document.getElementById('authOverlay').classList.add('hidden');
+                updateUIByRole();
+                renderMeetings();
+                updateStats();
+            } else {
+                document.getElementById('authOverlay').classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem(STORAGE_KEY_AUTH);
+            currentRole = null;
+            document.getElementById('authOverlay').classList.remove('hidden');
+            document.getElementById('inputPin').value = '';
+        }
+
+        function updateUIByRole() {
+            const badge = document.getElementById('userRoleBadge');
+            const btnTambah = document.getElementById('btnTambahNotulen');
+            const btnChangePin = document.getElementById('btnChangePin');
+
+            if (currentRole === 'admin') {
+                badge.className = "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Akses: Administrator`;
+                btnTambah.classList.remove('hidden');
+                btnChangePin.classList.remove('hidden');
+            } else {
+                badge.className = "hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-700/50 text-slate-300 border border-slate-600";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Akses: Pengunjung`;
+                btnTambah.classList.add('hidden');
+                btnChangePin.classList.add('hidden');
+            }
+        }
+
+        window.updateStats = function() {
+            const data = window.notulenData || [];
+            document.getElementById('statTotalNotulen').innerText = data.length;
+            
+            let totalUsulan = 0;
+            let totalDisetujui = 0;
+
+            data.forEach(item => {
+                if (item.items) {
+                    totalUsulan += item.items.length;
+                    item.items.forEach(k => {
+                        if (k.keterangan === 'Disetujui' || k.keterangan === 'Selesai') totalDisetujui++;
+                    });
+                }
+            });
+
+            document.getElementById('statTotalUsulan').innerText = totalUsulan;
+            document.getElementById('statDisetujui').innerText = totalDisetujui;
+        }
+
+        window.renderMeetings = function() {
+            const container = document.getElementById('meetingsContainer');
+            const emptyState = document.getElementById('emptyState');
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const filterStatus = document.getElementById('filterStatus').value;
+            const data = window.notulenData || [];
+
+            container.innerHTML = '';
+
+            let filtered = data.filter(item => {
+                const matchesSearch = 
+                    (item.judul && item.judul.toLowerCase().includes(searchQuery)) ||
+                    (item.lokasi && item.lokasi.toLowerCase().includes(searchQuery)) ||
+                    (item.items && item.items.some(i => 
+                        i.usulan.toLowerCase().includes(searchQuery) || 
+                        i.pembahasan.toLowerCase().includes(searchQuery) ||
+                        i.keterangan.toLowerCase().includes(searchQuery)
+                    ));
+
+                const matchesStatus = filterStatus === 'ALL' || (item.items && item.items.some(i => i.keterangan === filterStatus));
+
+                return matchesSearch && matchesStatus;
+            });
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            filtered.forEach(meeting => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden";
+
+                const isEditVisible = currentRole === 'admin' ? '' : 'hidden';
+
+                const rowsHtml = (meeting.items || []).map((row, index) => `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-3 text-center align-top font-bold text-slate-400 border-r border-slate-100">${index + 1}</td>
+                        <td class="py-3 px-4 align-top leading-relaxed font-medium text-slate-800 border-r border-slate-100">${escapeHtml(row.usulan)}</td>
+                        <td class="py-3 px-4 align-top leading-relaxed text-slate-600 border-r border-slate-100">${escapeHtml(row.pembahasan)}</td>
+                        <td class="py-3 px-4 align-top">
+                            ${getStatusBadge(row.keterangan)}
+                        </td>
+                    </tr>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="p-5 bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white mb-1.5 flex items-center gap-2">
+                                <i data-lucide="file-text" class="w-4 h-4 text-emerald-400"></i> ${escapeHtml(meeting.judul)}
+                            </h3>
+                            <div class="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-slate-300">
+                                <span class="flex items-center gap-1 text-emerald-300 font-medium">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${formatDate(meeting.tanggal)}
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i> ${escapeHtml(meeting.lokasi)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button onclick="openPrintModal('${meeting.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i data-lucide="printer" class="w-3.5 h-3.5 text-emerald-400"></i> Cetak
+                            </button>
+                            <button onclick="editNotulen('${meeting.id}')" class="${isEditVisible} px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit
+                            </button>
+                            <button onclick="deleteNotulen('${meeting.id}')" class="${isEditVisible} px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 px-5 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
+                        <div>Pemimpin Rapat: <span class="font-bold text-slate-800">${escapeHtml(meeting.pimpinan)}</span></div>
+                        <div>Notulis: <span class="font-bold text-slate-800">${escapeHtml(meeting.notulis)}</span></div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
+                                    <th class="py-3 px-3 text-center w-12 border-r border-slate-200">NO</th>
+                                    <th class="py-3 px-4 w-1/3 border-r border-slate-200">USULAN</th>
+                                    <th class="py-3 px-4 w-1/3 border-r border-slate-200">PEMBAHASAN</th>
+                                    <th class="py-3 px-4">KETERANGAN</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-700">
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        window.openNotulenModal = function(editId = null) {
+            if (currentRole !== 'admin') return;
+
+            const form = document.getElementById('formNotulen');
+            form.reset();
+            document.getElementById('rowsContainer').innerHTML = '';
+
+            if (editId) {
+                document.getElementById('modalFormTitle').innerText = 'Edit Notulen Rapat Desa';
+                const item = (window.notulenData || []).find(n => n.id === editId);
+                if (item) {
+                    document.getElementById('notulenId').value = item.id;
+                    document.getElementById('inputJudul').value = item.judul;
+                    document.getElementById('inputTanggal').value = item.tanggal;
+                    document.getElementById('inputLokasi').value = item.lokasi;
+                    document.getElementById('inputPimpinan').value = item.pimpinan;
+                    document.getElementById('inputNotulis').value = item.notulis;
+
+                    (item.items || []).forEach(row => addTableRow(row.usulan, row.pembahasan, row.keterangan));
+                }
+            } else {
+                document.getElementById('modalFormTitle').innerText = 'Input Notulen Rapat Baru';
+                document.getElementById('notulenId').value = '';
+                addTableRow();
+            }
+
+            document.getElementById('notulenModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        window.closeNotulenModal = function() {
+            document.getElementById('notulenModal').classList.add('hidden');
+        }
+
+        window.addTableRow = function(usulan = '', pembahasan = '', keterangan = 'Disetujui') {
+            const container = document.getElementById('rowsContainer');
+            const row = document.createElement('div');
+            row.className = "p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 relative";
+
+            row.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-700 uppercase mb-1">Usulan</label>
+                        <textarea placeholder="Poin usulan..." required class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs h-16 focus:ring-1 focus:ring-emerald-700 focus:outline-none">${escapeHtml(usulan)}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-700 uppercase mb-1">Pembahasan</label>
+                        <textarea placeholder="Poin pembahasan..." required class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs h-16 focus:ring-1 focus:ring-emerald-700 focus:outline-none">${escapeHtml(pembahasan)}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-700 uppercase mb-1">Keterangan / Status</label>
+                        <select class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700">
+                            <option value="Disetujui" ${keterangan === 'Disetujui' ? 'selected' : ''}>Disetujui</option>
+                            <option value="Dalam Proses" ${keterangan === 'Dalam Proses' ? 'selected' : ''}>Dalam Proses</option>
+                            <option value="Ditindaklanjuti" ${keterangan === 'Ditindaklanjuti' ? 'selected' : ''}>Ditindaklanjuti</option>
+                            <option value="Selesai" ${keterangan === 'Selesai' ? 'selected' : ''}>Selesai</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 bg-red-100 text-red-600 p-1 rounded-full hover:bg-red-200 transition-all border border-red-200">
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+            `;
+
+            container.appendChild(row);
+            lucide.createIcons();
+        }
+
+        window.saveNotulen = async function(e) {
+            e.preventDefault();
+            if (currentRole !== 'admin') return;
+
+            const editId = document.getElementById('notulenId').value;
+            const judul = document.getElementById('inputJudul').value;
+            const tanggal = document.getElementById('inputTanggal').value;
+            const lokasi = document.getElementById('inputLokasi').value;
+            const pimpinan = document.getElementById('inputPimpinan').value;
+            const notulis = document.getElementById('inputNotulis').value;
+
+            const rowBlocks = document.querySelectorAll('#rowsContainer > div');
+            const items = [];
+
+            rowBlocks.forEach(block => {
+                const textareas = block.querySelectorAll('textarea');
+                const select = block.querySelector('select');
+
+                if (textareas.length >= 2 && select) {
+                    items.push({
+                        usulan: textareas[0].value.trim(),
+                        pembahasan: textareas[1].value.trim(),
+                        keterangan: select.value
+                    });
+                }
+            });
+
+            if (items.length === 0) {
+                alert('Masukkan minimal 1 pasang usulan, pembahasan, dan keterangan.');
+                return;
+            }
+
+            const payload = { judul, tanggal, lokasi, pimpinan, notulis, items };
+
+            if (editId) {
+                await window.firebaseUpdateNotulen(editId, payload);
+            } else {
+                await window.firebaseAddNotulen(payload);
+            }
+
+            closeNotulenModal();
+        }
+
+        window.editNotulen = function(id) {
+            openNotulenModal(id);
+        }
+
+        window.deleteNotulen = async function(id) {
+            if (currentRole !== 'admin') return;
+            if (confirm('Apakah Anda yakin ingin menghapus arsip notulen ini?')) {
+                await window.firebaseDeleteNotulen(id);
+            }
+        }
+
+        window.openPrintModal = function(id) {
+            const item = (window.notulenData || []).find(n => n.id === id);
+            if (!item) return;
+
+            document.getElementById('printJudul').innerText = item.judul;
+            document.getElementById('printTanggalLokasi').innerText = `Hari / Tanggal: ${formatDate(item.tanggal)} | Tempat: ${item.lokasi}`;
+            document.getElementById('printPimpinan').innerText = item.pimpinan;
+            document.getElementById('printNotulis').innerText = item.notulis;
+
+            document.getElementById('printTTDPimpinan').innerText = item.pimpinan;
+            document.getElementById('printTTDNotulis').innerText = item.notulis;
+            document.getElementById('printTTDTanggal').innerText = formatDateOnly(new Date().toISOString());
+
+            const printTbody = document.getElementById('printTableBody');
+            printTbody.innerHTML = (item.items || []).map((row, i) => `
+                <tr>
+                    <td class="border border-slate-900 px-2 py-2 text-center align-top font-bold">${i + 1}</td>
+                    <td class="border border-slate-900 px-3 py-2 align-top">${escapeHtml(row.usulan)}</td>
+                    <td class="border border-slate-900 px-3 py-2 align-top">${escapeHtml(row.pembahasan)}</td>
+                    <td class="border border-slate-900 px-3 py-2 align-top font-semibold">${escapeHtml(row.keterangan)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('printModal').classList.remove('hidden');
+        }
+
+        window.closePrintModal = function() {
+            document.getElementById('printModal').classList.add('hidden');
+        }
+
+        window.triggerPrint = function() {
+            window.print();
+        }
+
+        window.openChangePinModal = function() {
+            if (currentRole !== 'admin') return;
+            document.getElementById('newVisitorPin').value = currentPins.visitor;
+            document.getElementById('newAdminPin').value = currentPins.admin;
+            document.getElementById('changePinModal').classList.remove('hidden');
+        }
+
+        window.closeChangePinModal = function() {
+            document.getElementById('changePinModal').classList.add('hidden');
+        }
+
+        window.saveNewPins = function() {
+            const vPin = document.getElementById('newVisitorPin').value.trim();
+            const aPin = document.getElementById('newAdminPin').value.trim();
+
+            if (!vPin || !aPin) {
+                alert('PIN tidak boleh kosong!');
+                return;
+            }
+
+            currentPins.visitor = vPin;
+            currentPins.admin = aPin;
+            localStorage.setItem(STORAGE_KEY_PINS, JSON.stringify(currentPins));
+
+            closeChangePinModal();
+            alert('Pengaturan PIN berhasil disimpan!');
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            }) + ' WIB';
+        }
+
+        function formatDateOnly(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function getStatusBadge(status) {
+            let color = 'bg-slate-100 text-slate-700 border-slate-200';
+            if (status === 'Disetujui' || status === 'Selesai') color = 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold';
+            else if (status === 'Dalam Proses') color = 'bg-amber-50 text-amber-800 border-amber-200 font-bold';
+            else if (status === 'Ditindaklanjuti') color = 'bg-blue-50 text-blue-800 border-blue-200 font-bold';
+
+            return `<span class="inline-block px-2.5 py-1 rounded-md border text-[11px] ${color}">${status}</span>`;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
